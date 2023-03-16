@@ -1,12 +1,13 @@
-import {Box,Flex,Button} from "@chakra-ui/react"
-import { AddIcon } from "@chakra-ui/icons"
-import { useEffect } from "react"
+import { Box, Flex, Button } from "@chakra-ui/react";
+import { AddIcon } from "@chakra-ui/icons";
+import { useState } from "react";
+import AddContactBox from "./AddContactBox";
 const AddContact = () => {
-  const addContact = ()=>{
-    alert("clicked add contact")
-  }
+  const [isOpenAddContactBox, setIsOpenAddContactBox] = useState(false);
+
   return (
     <Box mt={5}>
+      <Box>
         <Flex justify="center">
           <Button
             bg="darkcyan"
@@ -16,14 +17,21 @@ const AddContact = () => {
             mx="100px"
             fontSize="xl"
             fontWeight="bold"
-            onClick={addContact}
+            onClick={() => {
+              console.log(isOpenAddContactBox)
+              setIsOpenAddContactBox(!isOpenAddContactBox);
+            }}
           >
             <AddIcon w="25px" h="25px" mr="4" />
-            Add Contact
+            Add New Contact
           </Button>
         </Flex>
       </Box>
-  )
-}
+          {isOpenAddContactBox&&(
+            <AddContactBox/>
+          )}
+    </Box>
+  );
+};
 
-export default AddContact
+export default AddContact;
