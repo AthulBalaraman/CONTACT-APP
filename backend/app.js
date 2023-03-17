@@ -21,18 +21,16 @@ db(() => {
 
 app.post("/addContact", async (req, res) => {
   try {
-    console.log("reached backend");
     console.log(req.body);
     const { name, phoneNumber, email, userID } = req.body;
     const newContact = new Contacts({
       name: name,
       phoneNumber: phoneNumber,
       email: email,
-      userID:userID
+      userID: userID,
     });
     console.log("this is new contact", newContact);
     const contact = await newContact.save();
-    console.log("This is contact", contact);
     res.status(200).json({ message: "Contact added successfully" });
   } catch (error) {
     console.log(error.message);
@@ -43,7 +41,7 @@ app.post("/addContact", async (req, res) => {
 app.post("/register", async (req, res) => {
   try {
     const { username, password } = req.body;
-    const hashedPassword = await bcrypt.hash(password,10)
+    const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new Users({
       username: username,
       password: hashedPassword,
@@ -55,34 +53,106 @@ app.post("/register", async (req, res) => {
   }
 });
 
-app.post('/login',async(req,res)=>{
-try {
-  const {username, password} = req.body
-  const user = await Users.findOne({username:username})
-  console.log("this is user for id from backend",user)
-  !user && res.status(404).json({warning:"User not found"})
-  const verifyPassword =  bcrypt.compare(password,user.password)
-  !verifyPassword && res.status(404).json({warning:"Password incorrect"})
-  res.status(200).json({message:"login successfull", value:true, userID:user._id})
-} catch (error) {
-  res.status(500).json({message:"User login unsuccessfull", value:false})
-}
+app.post("/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const user = await Users.findOne({ username: username });
+    !user && res.status(404).json({ warning: "User not found" });
+    const verifyPassword = bcrypt.compare(password, user.password);
+    !verifyPassword && res.status(404).json({ warning: "Password incorrect" });
+    res.status(200).json({
+      message: " WELCOME TO MY CONTACT APP",
+      value: true,
+      userID: user._id,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "User login unsuccessfull", value: false });
+  }
+});
 
-})
+app.get("/getMyContacts", async (req, res) => {
+  try {
+    const userID = req.query.id;
+    const contactsArray = await Contacts.find({ userID: userID });
+    console.log("This is contacts array from the backend", contactsArray);
+    res.status(200).json(contactsArray);
+  } catch (error) {
+    res.status(500).json({ error: error });
+  }
+});
 
-app.get('/getMyContacts',async(req,res)=>{
-try {
-  console.log("Reached backend of getmycontacts")
-  const userID = req.body
-  console.log("this is req.body.userID",req.body)
-  const myContacts = await Contacts.find({userID:userID})
-  console.log("This is my contsats form backend" , myContacts)
-  res.status(200).json({contacts:myContacts})
-} catch (error) {
-  res.status(500).json({error:error})
-}
-})
+app.delete("/deleteContact", async (req, res) => {
+  try {
+    const contactID = req.query.id;
+    console.log("CONTACT_ID", contactID);
+    await Contacts.findByIdAndDelete(contactID);
+    res.status(200).json({ message: "Contact deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error });
+  }
+});
 
+app.get("/search", async (req, res) => {
+  try {
+    const search = req.query.searchId;
+    const userID = req.query.userID;
+    const phoneResults = await Contacts.aggregate([
+      { $match: { userID: userID } },
+      { $match: { phoneNumber: search } },
+    ]);
+
+    console.log("This is user contacts ", phoneResults);
+    const emailResults = await Contacts.aggregate([
+      { $match: { userID: userID } },
+      { $match: { email: search } },
+    ]);
+    res
+      .status(200)
+      .json({ phoneResults: phoneResults, emailResults: emailResults });
+  } catch (error) {
+    res.status(500).json({ message: "search error" });
+  }
+});
+
+app.get("/editContact", async (req, res) => {
+  try {
+    const contactID = req.query.id;
+    console.log("This is edit contact id ===>>>", contactID);
+    const contactDetails = await Contacts.findById(contactID);
+    console.log("This is contact details ===>>>", contactDetails);
+    res.status(200).json(contactDetails);
+  } catch (error) {
+    res.status(404).json({ error: error });
+  }
+});
+
+app.put("/editContact", async (req, res) => {
+  try {
+    const name = req.query.name;
+    const email = req.query.email;
+    const phone = req.query.phone;
+    const contactID = req.query.id;
+    console.log("NAME", name);
+    console.log("PHONE", phone);
+    console.log("EMAIL", email);
+    console.log("CONTACT ID", contactID);
+    const response = await Contacts.findByIdAndUpdate(contactID, {
+      name: name,
+      phone: phone,
+      email: email,
+    });
+    // const response = await Contacts.updateOne({_id:contactID},{
+    //   $set:{
+    //     name:name,
+    //     phone:phone,
+    //     email:email
+    //   }
+    // })
+    res.status(200).json(response.data);
+  } catch (error) {
+    res.status(500).json({ error: error });
+  }
+});
 app.listen(PORT, () => {
   console.log(`Server running at port ${PORT}`);
 });

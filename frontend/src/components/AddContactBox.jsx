@@ -13,34 +13,35 @@ import {
 import { AddIcon, PhoneIcon, EmailIcon } from "@chakra-ui/icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPen } from "@fortawesome/free-solid-svg-icons";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
-import Swal from 'sweetalert2'
+import Swal from "sweetalert2";
 
-
-const AddContactBox = ({userID}) => {
+const AddContactBox = ({
+  userID,
+  setIsOpenAddContactBox,
+  isOpenAddContactBox,
+}) => {
   const [isName, setIsName] = useState("");
   const [isEmail, setIsEmail] = useState("");
   const [isPhone, setIsPhone] = useState("");
-  console.log("This is useIF from addcontact box button funtion", userID)
   const addContact = async (e) => {
     try {
       e.preventDefault();
-      console.log("This is useIF from addcontact box button funtion", userID)
       const contactDetails = {
         name: isName,
         phoneNumber: isPhone,
         email: isEmail,
-        userID: userID
+        userID: userID,
       };
-      console.log("This is contactDettails", contactDetails);
       const response = await axios.post(
         "http://localhost:5000/addContact",
         contactDetails
       );
-      const message = response.data.message
-      Swal.fire('Success', `${message}`, 'success')
-
+      const message = response.data.message;
+      Swal.fire("Success", `${message}`, "success");
+      setIsOpenAddContactBox(!isOpenAddContactBox);
+      window.location.reload();
     } catch (error) {
       console.log("this is error from frontend", error.message);
     }
@@ -71,22 +72,6 @@ const AddContactBox = ({userID}) => {
 
             <Stack mx="15%">
               <Box>
-                <FormLabel>Enter Phone number :</FormLabel>
-                <InputGroup>
-                  <InputLeftElement
-                    pointerEvents="none"
-                    children={<PhoneIcon color="gray.300" />}
-                  />
-                  <Input
-                    type="tel"
-                    placeholder="Phone number"
-                    placeholderTextColor="white"
-                    value={isPhone}
-                    onChange={(e) => setIsPhone(e.target.value)}
-                  />
-                </InputGroup>
-              </Box>
-              <Box>
                 <FormLabel>Enter name :</FormLabel>
                 <InputGroup>
                   <InputLeftElement
@@ -99,6 +84,22 @@ const AddContactBox = ({userID}) => {
                     placeholderTextColor="white"
                     value={isName}
                     onChange={(e) => setIsName(e.target.value)}
+                  />
+                </InputGroup>
+              </Box>
+              <Box>
+                <FormLabel>Enter Phone number :</FormLabel>
+                <InputGroup>
+                  <InputLeftElement
+                    pointerEvents="none"
+                    children={<PhoneIcon color="gray.300" />}
+                  />
+                  <Input
+                    type="tel"
+                    placeholder="Phone number"
+                    placeholderTextColor="white"
+                    value={isPhone}
+                    onChange={(e) => setIsPhone(e.target.value)}
                   />
                 </InputGroup>
               </Box>

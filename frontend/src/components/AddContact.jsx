@@ -2,9 +2,8 @@ import { Box, Flex, Button } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
 import { useState } from "react";
 import AddContactBox from "./AddContactBox";
-const AddContact = ({userID}) => {
+const AddContact = ({ userID }) => {
   const [isOpenAddContactBox, setIsOpenAddContactBox] = useState(false);
-  console.log("THis is user from addcontact page",userID)
   return (
     <Box mt={5}>
       <Box>
@@ -18,7 +17,7 @@ const AddContact = ({userID}) => {
             fontSize="xl"
             fontWeight="bold"
             onClick={() => {
-              console.log(isOpenAddContactBox)
+              console.log(isOpenAddContactBox);
               setIsOpenAddContactBox(!isOpenAddContactBox);
             }}
           >
@@ -27,9 +26,13 @@ const AddContact = ({userID}) => {
           </Button>
         </Flex>
       </Box>
-          {isOpenAddContactBox&&(
-            <AddContactBox userID={userID}/>
-          )}
+      {isOpenAddContactBox && (
+        <AddContactBox
+          userID={userID}
+          setIsOpenAddContactBox={setIsOpenAddContactBox}
+          isOpenAddContactBox={isOpenAddContactBox}
+        />
+      )}
     </Box>
   );
 };
